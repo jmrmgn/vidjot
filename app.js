@@ -1,6 +1,8 @@
 const express = require('express');
 const exphbs = require('express-handlebars');
 const methodOverdrive = require('method-override');
+const flash = require('connect-flash');
+const session = require('express-session');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
@@ -31,6 +33,24 @@ app.use(bodyParser.json());
 
 // Method overrid middleware
 app.use(methodOverdrive('_method'));
+
+// Express Session middleware
+app.use(session({
+   secret: 'secret',
+   resave: true,
+   saveUninitialized: true
+}));
+
+// Flash middleware
+app.use(flash());
+
+// Global variables
+app.use((req, res, next) => {
+   res.locals.success_msg = req.flash('success_msg');
+   res.locals.error_msg = req.flash('error_msg');
+   res.locals.error = req.flash('error');
+   next();
+})
 
 /* ROUTES */
 
@@ -109,10 +129,11 @@ app.post('/ideas', async (req, res) => {
          };
 
          await new Idea(newIdea).save();
+         req.flash('success_msg', `${req.body.title} added.`);
          res.redirect('/ideas');
       }
       catch (error) {
-         console.log(err);
+         console.log(error);
       }
    }
 });
@@ -146,6 +167,7 @@ app.put('/ideas/:id', async (req, res) => {
          idea.title = title;
          idea.details = details;
          await idea.save();
+         req.flash('success_msg', 'Video idea updated');
          res.redirect('/ideas');
       }
       catch(error) {
@@ -161,6 +183,7 @@ app.delete('/ideas/:id', async (req, res) => {
 
    try {
       await Idea.findOneAndDelete(ideaId);
+      req.flash('success_msg', 'Videa Idea removed.');
       res.redirect('/ideas');
    }
    catch (error) {
