@@ -43,7 +43,20 @@ app.get('/about', (req, res) => {
    res.render('about');
 });
 
-// Add idea route
+// Idea index page
+app.get('/ideas', async (req, res) => {
+   try {
+      const ideas = await Idea.find().sort({ date: 'desc' });
+      res.render('ideas/index', {
+         ideas: ideas
+      });
+   }
+   catch (error) {
+      console.log(error);
+   }
+});
+
+// Idea add route
 app.get('/ideas/add', (req, res) => {
    res.render('ideas/add');
 });
@@ -80,7 +93,6 @@ app.post('/ideas', async (req, res) => {
       catch (error) {
          console.log(err);
       }
-      
    }
 });
 
