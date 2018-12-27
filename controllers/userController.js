@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+const passport = require('passport');
 
 const User = require('../models/User');
 
@@ -17,13 +18,6 @@ exports.postRegister = async (req, res) => {
    const password2 = req.body.password2;
    let errors = [];
 
-   const userInput = {
-      errors: errors,
-      name: name,
-      email: email,
-      password: password,
-      password2: password2
-   };
    try {
 
       const hasEmail = await User.findOne({ email: email });
@@ -41,7 +35,13 @@ exports.postRegister = async (req, res) => {
       }
 
       if (errors.length > 0) {
-         res.render('users/register', userInput);
+         res.render('users/register', {
+            errors: errors,
+            name: name,
+            email: email,
+            password: password,
+            password2: password2
+         });
       }
       else {
          const hashedPw = await bcrypt.hash(password, 12);
@@ -58,4 +58,18 @@ exports.postRegister = async (req, res) => {
    catch (error) {
       console.log(error);
    }
+};
+
+exports.postLogin = (req, res, next) => {
+   passport.authenticate('local', {
+      successRedirect: '/ideas',
+      failureRedirect: '/login',
+      failureFlash: true
+   })(req, res, next);
+};
+
+exports.getLogout = (req, res) => {
+   req.logout();
+   req.flash('success_msg', 'Goodbye!');
+   res.redirect('/login');
 };
