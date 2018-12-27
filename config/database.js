@@ -1,6 +1,6 @@
 if (process.env.NODE_ENV === 'production') {
    module.exports = {
-      MONGO_URI: 'mongodb://admin:adminadmin@ds123124.mlab.com:23124/db-vidjot'
+      MONGO_URI: 'mongodb://admin:test1234@ds123124.mlab.com:23124/db-vidjot'
    }
 }
 else {
