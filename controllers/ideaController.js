@@ -2,7 +2,7 @@ const Idea = require('../models/Idea');
 
 exports.getIdeas = async (req, res) => {
    try {
-      const ideas = await Idea.find().sort({ date: 'desc' });
+      const ideas = await Idea.find({ user: req.user.id }).sort({ date: 'desc' });
       res.render('ideas/index', {
          ideas: ideas
       });
@@ -23,9 +23,15 @@ exports.getEditIdea = async (req, res) => {
          _id: ideaId
       });
 
-      res.render('ideas/edit', {
-         idea: idea
-      });
+      if (idea.user != req.user.id) {
+         req.flash('error_msg', 'Not authorized');
+         res.redirect('/ideas');
+      }
+      else {
+         res.render('ideas/edit', {
+            idea: idea
+         });
+      }
    }
    catch (error) {
       res.redirect('/ideas');
@@ -54,7 +60,8 @@ exports.postAddIdea = async (req, res) => {
       try {
          const newIdea = {
             title: req.body.title,
-            details: req.body.details
+            details: req.body.details,
+            user: req.user.id
          };
 
          await new Idea(newIdea).save();
