@@ -23,6 +23,8 @@ app.engine('handlebars', exphbs({
 }));
 app.set('view engine', 'handlebars');
 
+/* ROUTES */
+
 // Index route
 app.get('/', (req, res) => {
    const title = 'Welcome';
@@ -34,6 +36,11 @@ app.get('/', (req, res) => {
 // About route
 app.get('/about', (req, res) => {
    res.render('about');
+});
+
+// Ideas route
+app.get('/ideas/add', (req, res) => {
+   res.render('ideas/add');
 });
 
 const port = 5000;
