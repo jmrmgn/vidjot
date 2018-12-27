@@ -49,7 +49,7 @@ app.get('/ideas/add', (req, res) => {
 });
 
 // Add idea POST route
-app.post('/ideas', (req, res) => {
+app.post('/ideas', async (req, res) => {
    let errors = [];
 
    if (!req.body.title) {
@@ -68,7 +68,19 @@ app.post('/ideas', (req, res) => {
       });
    }
    else {
-      res.send('Passed');
+      try {
+         const newIdea = {
+            title: req.body.title,
+            details: req.body.details
+         };
+
+         await new Idea(newIdea).save();
+         res.redirect('/ideas');
+      }
+      catch (error) {
+         console.log(err);
+      }
+      
    }
 });
 
