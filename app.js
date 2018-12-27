@@ -155,6 +155,20 @@ app.put('/ideas/:id', async (req, res) => {
 
 });
 
+// Delete idea DELETE route
+app.delete('/ideas/:id', async (req, res) => {
+   const ideaId = req.params.id;
+
+   try {
+      await Idea.findOneAndDelete(ideaId);
+      res.redirect('/ideas');
+   }
+   catch (error) {
+      console.log(error);
+   }
+
+});
+
 const port = 5000;
 
 app.listen(port, () => {
