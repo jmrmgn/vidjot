@@ -1,5 +1,6 @@
 const express = require('express');
 const exphbs = require('express-handlebars');
+const methodOverdrive = require('method-override');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
@@ -27,6 +28,9 @@ app.set('view engine', 'handlebars');
 // Body pareser middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+
+// Method overrid middleware
+app.use(methodOverdrive('_method'));
 
 /* ROUTES */
 
@@ -59,6 +63,23 @@ app.get('/ideas', async (req, res) => {
 // Idea add route
 app.get('/ideas/add', (req, res) => {
    res.render('ideas/add');
+});
+
+// Idea edit route
+app.get('/ideas/edit/:id', async (req, res) => {
+   const ideaId = req.params.id;
+   try {
+      const idea = await Idea.findOne({
+         _id: ideaId
+      });
+
+      res.render('ideas/edit', {
+         idea: idea
+      });
+   }
+   catch (error) {
+      res.redirect('/ideas');
+   }
 });
 
 // Add idea POST route
@@ -94,6 +115,44 @@ app.post('/ideas', async (req, res) => {
          console.log(err);
       }
    }
+});
+
+// Edit idea PUT route
+app.put('/ideas/:id', async (req, res) => {
+   const ideaId = req.params.id;
+   const title = req.body.title;
+   const details = req.body.details;
+   
+   let errors = [];
+
+   if (!title) {
+      errors.push({text: 'Please add a title'});
+   }
+
+   if (!details) {
+      errors.push({text: 'Please add a details'});
+   }
+
+   if (errors.length > 0) {
+      res.render('ideas/edit/' + ideaId, {
+         errors: errors,
+         title: req.body.title,
+         details: req.body.details
+      });
+   }
+   else {
+      try {
+         const idea = await Idea.findOne({ _id: ideaId });
+         idea.title = title;
+         idea.details = details;
+         await idea.save();
+         res.redirect('/ideas');
+      }
+      catch(error) {
+         console.log(error);
+      }
+   }
+
 });
 
 const port = 5000;
